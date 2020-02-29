@@ -1,10 +1,8 @@
 package me.kyunghwan.lendit.accounts;
 
 import lombok.*;
-import me.kyunghwan.lendit.products.Product;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
@@ -16,12 +14,17 @@ public class Account {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
     private String email;
 
+    @Column
     private String password;
 
+    @Column
+    @Enumerated(EnumType.STRING)
     private AccountRole role;
 
+    @Column
     private Long deposit;
 
     /*
@@ -31,5 +34,13 @@ public class Account {
     @OneToMany
     private List<Product> ordersList;
     */
+
+    @Builder
+    public Account(String email, String password, AccountRole role, Long deposit) {
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.deposit = deposit;
+    }
 
 }
