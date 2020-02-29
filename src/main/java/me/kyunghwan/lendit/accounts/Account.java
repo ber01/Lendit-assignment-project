@@ -3,10 +3,7 @@ package me.kyunghwan.lendit.accounts;
 import lombok.*;
 import me.kyunghwan.lendit.products.Product;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.List;
 
 @Getter @Setter
@@ -27,8 +24,12 @@ public class Account {
 
     private Long deposit;
 
+    /*
+    @OneToMany
     private List<Product> cartsList;
 
+    @OneToMany
     private List<Product> ordersList;
+    */
 
 }
