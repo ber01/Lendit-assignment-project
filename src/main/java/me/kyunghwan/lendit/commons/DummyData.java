@@ -23,6 +23,7 @@ public class DummyData implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         accountRepository.deleteAll();
+        productRepository.deleteAll();
 
         Account admin = Account.builder()
                 .email("lendit@email.com")
@@ -46,7 +47,7 @@ public class DummyData implements CommandLineRunner {
             productRepository.save(Product.builder()
                     .name("상품" + i)
                     .price(500L * i)
-                    .quantity((long) i)
+                    .quantity(10L)
                     .build());
         });
     }

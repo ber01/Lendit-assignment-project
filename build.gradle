@@ -35,4 +35,5 @@ dependencies {
     
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile group: 'org.springframework.security', name: 'spring-security-test'
+    testCompile group: 'org.springframework.security', name: 'spring-security-test', version: ${springBootVersion}
 }
