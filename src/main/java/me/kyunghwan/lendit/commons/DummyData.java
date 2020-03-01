@@ -5,8 +5,9 @@ import me.kyunghwan.lendit.accounts.Account;
 import me.kyunghwan.lendit.accounts.AccountRepository;
 import me.kyunghwan.lendit.accounts.AccountRole;
 import me.kyunghwan.lendit.accounts.AccountService;
-import me.kyunghwan.lendit.products.Product;
+import me.kyunghwan.lendit.products.ProductDto;
 import me.kyunghwan.lendit.products.ProductRepository;
+import me.kyunghwan.lendit.products.ProductService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,8 @@ public class DummyData implements CommandLineRunner {
     private final AccountRepository accountRepository;
     private final AccountService accountService;
     private final ProductRepository productRepository;
+    private final AppProperties appProperties;
+    private final ProductService productService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -26,8 +29,8 @@ public class DummyData implements CommandLineRunner {
         productRepository.deleteAll();
 
         Account admin = Account.builder()
-                .email("lendit@email.com")
-                .password("password")
+                .email(appProperties.getAdminUsername())
+                .password(appProperties.getAdminPassword())
                 .deposit(999999999L)
                 .role(AccountRole.ADMIN)
                 .build();
@@ -35,8 +38,8 @@ public class DummyData implements CommandLineRunner {
         accountService.saveAccount(admin);
 
         Account user = Account.builder()
-                .email("user@email.com")
-                .password("password")
+                .email(appProperties.getUserUsername())
+                .password(appProperties.getUserPassword())
                 .deposit(50000L)
                 .role(AccountRole.USER)
                 .build();
@@ -44,11 +47,13 @@ public class DummyData implements CommandLineRunner {
         accountService.saveAccount(user);
 
         IntStream.rangeClosed(1, 30).forEach(i -> {
-            productRepository.save(Product.builder()
+            ProductDto productDto = ProductDto.builder()
                     .name("상품" + i)
-                    .price(500L * i)
-                    .quantity(10L)
-                    .build());
+                    .price((long) i * 500)
+                    .quantity((long) i)
+                    .build();
+
+            productService.productRegistration(productDto, admin);
         });
     }
 

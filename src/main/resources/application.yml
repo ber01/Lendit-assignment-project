@@ -4,6 +4,18 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+  jackson:
+    default-property-inclusion: NON_NULL
+    deserialization:
+      fail-on-unknown-properties: true
   h2:
     console:
       enabled: true
+
+lendit:
+  admin-username: lendit@email.com
+  admin-password: adminPassword
+  user-username: user@email.com
+  user-password: userPassword
+  client-id: len
+  client-secret: dit

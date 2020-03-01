@@ -4,6 +4,7 @@ package me.kyunghwan.lendit.configs;
 import me.kyunghwan.lendit.accounts.Account;
 import me.kyunghwan.lendit.accounts.AccountRole;
 import me.kyunghwan.lendit.accounts.AccountService;
+import me.kyunghwan.lendit.common.BaseControllerTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-public class AuthServerConfigTest {
-
-    @Autowired
-    MockMvc mockMvc;
+public class AuthServerConfigTest extends BaseControllerTest {
 
     @Autowired
     AccountService accountService;
@@ -47,7 +42,7 @@ public class AuthServerConfigTest {
 
         // when & then
         this.mockMvc.perform(post("/oauth/token")
-                .with(httpBasic("len", "dit"))
+                .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret()))
                 .param("username", username)
                 .param("password", password)
                 .param("grant_type", "password"))
