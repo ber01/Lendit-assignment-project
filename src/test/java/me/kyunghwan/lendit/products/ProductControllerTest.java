@@ -1,7 +1,11 @@
 package me.kyunghwan.lendit.products;
 
+import me.kyunghwan.lendit.accounts.Account;
+import me.kyunghwan.lendit.accounts.AccountRepository;
+import me.kyunghwan.lendit.accounts.AccountRole;
 import me.kyunghwan.lendit.common.BaseControllerTest;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
@@ -9,16 +13,20 @@ import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.Optional;
 import java.util.Random;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ProductControllerTest extends BaseControllerTest {
+
+    @Autowired
+    ProductRepository productRepository;
 
     @Test
     @Description("새로운 상품 등록에 성공하는 테스트")
@@ -117,6 +125,66 @@ public class ProductControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.links[1].rel").value("lookup-product"))
                 .andExpect(jsonPath("$.links[2].rel").value("update-product"))
         ;
+    }
+
+    @Test
+    @Description("상품을 등록한 사람이 상품을 성공적으로 삭제하는 테스트")
+    public void Product_삭제_테스트_ADMIN() throws Exception {
+        long productId = 1L;
+
+        this.mockMvc.perform(delete("/api/products/" + productId)
+                    .header(HttpHeaders.AUTHORIZATION, getAuthTokenWithAdmin()))
+                    .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.links[1].rel").value("lookup-product"))
+                .andExpect(jsonPath("$.links[2].rel").value("register-product"))
+        ;
+
+        Optional<Product> optional = productRepository.findById(productId);
+        assertThat(optional).isEmpty();
+    }
+
+    @Test
+    @Description("USER 권한이 삭제 요청시 실패하는 테스트")
+    public void Product_삭제_테스트_USER() throws Exception {
+        long productId = 1L;
+
+        this.mockMvc.perform(delete("/api/products/" + productId)
+                    .header(HttpHeaders.AUTHORIZATION, getAuthTokenWithUser()))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+        ;
+
+        Optional<Product> optional = productRepository.findById(productId);
+        assertThat(optional).isNotNull();
+    }
+
+    @Test
+    @Description("ADMIN 권한이지만 등록하지 않는 유저가 삭제 요청시 실패하는 테스트")
+    public void Product_삭제_테스트_ANOTHER_ADMIN() throws Exception {
+        long productId = 1L;
+        this.mockMvc.perform(delete("/api/products/" + productId)
+                    .header(HttpHeaders.AUTHORIZATION, getAuthTokenWithAnotherAdmin()))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+        ;
+
+        Optional<Product> optional = productRepository.findById(productId);
+        assertThat(optional).isNotNull();
+    }
+
+    @Description("ANOTHER ADMIN의 인증 토큰을 발급하는 메서드")
+    private String getAuthTokenWithAnotherAdmin() throws Exception {
+        ResultActions perform = this.mockMvc.perform(post("/oauth/token")
+                .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret()))
+                .param("username", "anotherAdmin@email.com")
+                .param("password", "password")
+                .param("grant_type", "password"));
+
+        String contentAsString = perform.andReturn().getResponse().getContentAsString();
+        Jackson2JsonParser jackson2JsonParser = new Jackson2JsonParser();
+        String token = jackson2JsonParser.parseMap(contentAsString).get("access_token").toString();
+        return "Bearer " + token;
     }
 
     @Description("ADMIN의 인증 토큰을 발급하는 메서드")

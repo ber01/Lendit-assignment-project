@@ -28,4 +28,9 @@ public class ProductService {
     public Product oneProductLookup(Long productId) {
         return productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException(productId + "에 해당하는 상품 없음"));
     }
+
+    public void productDelete(Product deleteProduct) {
+        productRepository.delete(deleteProduct);
+    }
+
 }

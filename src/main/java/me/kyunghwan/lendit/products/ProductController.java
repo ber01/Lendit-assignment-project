@@ -89,6 +89,32 @@ public class ProductController {
         return ResponseEntity.ok(productResource);
     }
 
+    @DeleteMapping("{productId}")
+    public ResponseEntity productDelete(@PathVariable Long productId,
+                                        @AuthenticationPrincipal AccountAdapter accountAdapter) {
+        Account account = accountAdapter.getAccount();
+        if (isUser(account)) {
+            System.out.println("어드민 아님");
+            return badRequest();
+        }
+
+        Product deleteProduct = productService.oneProductLookup(productId);
+        if (account.getRole() == AccountRole.ADMIN && !account.equals(deleteProduct.getAccount())) {
+            System.out.println("어드민이긴 한데 다른 사용자");
+            return badRequest();
+        }
+
+        productService.productDelete(deleteProduct);
+        System.out.println("상품을 등록한 어드민");
+
+        ProductResource productResource = new ProductResource(deleteProduct);
+        productResource.add(linkTo(ProductController.class).withRel("lookup-product"));
+        productResource.add(linkTo(ProductController.class).withRel("register-product"));
+        productResource.add(new Link("테스트").withRel("profile"));
+
+        return ResponseEntity.ok(productResource);
+    }
+
     private boolean isEqualsAccount(Product product, Account account) {
         return product.getAccount().equals(account);
     }

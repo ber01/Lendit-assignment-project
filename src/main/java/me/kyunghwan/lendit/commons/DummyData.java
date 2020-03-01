@@ -35,7 +35,15 @@ public class DummyData implements CommandLineRunner {
                 .role(AccountRole.ADMIN)
                 .build();
 
+        Account anotherAdmin = Account.builder()
+                .email("anotherAdmin@email.com")
+                .password("password")
+                .deposit(1L)
+                .role(AccountRole.ADMIN)
+                .build();
+
         accountService.saveAccount(admin);
+        accountService.saveAccount(anotherAdmin);
 
         Account user = Account.builder()
                 .email(appProperties.getUserUsername())
