@@ -1,8 +1,5 @@
 package me.kyunghwan.lendit.products;
 
-import me.kyunghwan.lendit.accounts.Account;
-import me.kyunghwan.lendit.accounts.AccountRepository;
-import me.kyunghwan.lendit.accounts.AccountRole;
 import me.kyunghwan.lendit.common.BaseControllerTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,6 +168,68 @@ public class ProductControllerTest extends BaseControllerTest {
 
         Optional<Product> optional = productRepository.findById(productId);
         assertThat(optional).isNotNull();
+    }
+
+    @Test
+    @Description("상품을 등록한 사람이 상품 수정에 성공하는 테스트")
+    public void Product_수정_테스트() throws Exception {
+        long productId = 2L;
+        Product product = productRepository.findById(productId).get();
+
+        ProductDto productDto = ProductDto.builder()
+                .name("수정 이름")
+                .build();
+
+        this.mockMvc.perform(put("/api/products/" + productId)
+                    .header(HttpHeaders.AUTHORIZATION, getAuthTokenWithAdmin())
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .accept(MediaTypes.HAL_JSON)
+                    .content(objectMapper.writeValueAsString(productDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+        ;
+
+        Product updateProduct = productRepository.findById(productId).get();
+
+        assertThat(product.getName()).isNotEqualTo(updateProduct.getName());
+    }
+
+    @Test
+    @Description("ADMIN 권한의 다른 유저가 상품 수정에 실패하는 테스트")
+    public void Product_수정_테스트_ANOTHER_ADMIN() throws Exception {
+        long productId = 2L;
+
+        ProductDto productDto = ProductDto.builder()
+                .name("수정 이름")
+                .build();
+
+        this.mockMvc.perform(put("/api/products/" + productId)
+                    .header(HttpHeaders.AUTHORIZATION, getAuthTokenWithAnotherAdmin())
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .accept(MediaTypes.HAL_JSON)
+                    .content(objectMapper.writeValueAsString(productDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+        ;
+    }
+
+    @Test
+    @Description("USER 권한의 유저가 상품 수정에 실패하는 테스트")
+    public void Product_수정_테스트_USER() throws Exception {
+        long productId = 1L;
+
+        ProductDto productDto = ProductDto.builder()
+                .name("수정 이름")
+                .build();
+
+        this.mockMvc.perform(put("/api/products/" + productId)
+                    .header(HttpHeaders.AUTHORIZATION, getAuthTokenWithUser())
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .accept(MediaTypes.HAL_JSON)
+                    .content(objectMapper.writeValueAsString(productDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+        ;
     }
 
     @Description("ANOTHER ADMIN의 인증 토큰을 발급하는 메서드")

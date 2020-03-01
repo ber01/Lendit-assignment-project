@@ -29,8 +29,14 @@ public class ProductService {
         return productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException(productId + "에 해당하는 상품 없음"));
     }
 
+    @Transactional
     public void productDelete(Product deleteProduct) {
         productRepository.delete(deleteProduct);
+    }
+
+    @Transactional
+    public Product productUpdate(Product updateProduct, ProductDto productDto) {
+        return updateProduct.update(productDto);
     }
 
 }

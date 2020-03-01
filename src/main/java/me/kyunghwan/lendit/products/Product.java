@@ -42,4 +42,11 @@ public class Product {
         this.account = account;
     }
 
+    public Product update(ProductDto productDto) {
+        this.name = productDto.getName() != null ? productDto.getName() : this.name;
+        this.price = productDto.getPrice() != null ? productDto.getPrice() : this.price;
+        this.quantity = productDto.getQuantity() != null ? productDto.getQuantity() : this.quantity;
+        return this;
+    }
+
 }

@@ -115,6 +115,30 @@ public class ProductController {
         return ResponseEntity.ok(productResource);
     }
 
+    @PutMapping("{productId}")
+    public ResponseEntity productUpdate(@PathVariable Long productId,
+                                        @RequestBody ProductDto productDto,
+                                        @AuthenticationPrincipal AccountAdapter accountAdapter) {
+        Account account = accountAdapter.getAccount();
+        if (isUser(account)) {
+            System.out.println("유저임");
+            return badRequest();
+        }
+
+        Product updateProduct = productService.oneProductLookup(productId);
+        if (account.getRole() == AccountRole.ADMIN && !account.equals(updateProduct.getAccount())) {
+            System.out.println("어드민이긴 한데 다른 사용자임");
+            return badRequest();
+        }
+
+        Product product = productService.productUpdate(updateProduct, productDto);
+        ProductResource productResource = new ProductResource(product);
+        productResource.add(linkTo(ProductController.class).withRel("lookup-product"));
+        productResource.add(new Link("테스트").withRel("profile"));
+
+        return ResponseEntity.ok(productResource);
+    }
+
     private boolean isEqualsAccount(Product product, Account account) {
         return product.getAccount().equals(account);
     }
