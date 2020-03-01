@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Optional;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
@@ -68,6 +69,28 @@ public class ProductController {
         pagedResources.add(new Link("테스트").withRel("profile"));
 
         return ResponseEntity.ok(pagedResources);
+    }
+
+    @GetMapping("{productId}")
+    public ResponseEntity oneProductLookup(@PathVariable Long productId,
+                                           @AuthenticationPrincipal AccountAdapter accountAdapter) {
+        Product product = productService.oneProductLookup(productId);
+        ProductResource productResource = new ProductResource(product);
+        productResource.add(linkTo(ProductController.class).withRel("lookup-product"));
+        if (accountAdapter != null) {
+            Account account = accountAdapter.getAccount();
+            if (isEqualsAccount(product, account)) {
+                productResource.add(linkTo(ProductController.class).withRel("update-product"));
+            }
+        }
+
+        productResource.add(new Link("테스트").withRel("profile"));
+
+        return ResponseEntity.ok(productResource);
+    }
+
+    private boolean isEqualsAccount(Product product, Account account) {
+        return product.getAccount().equals(account);
     }
 
     private boolean isUser(Account account) {

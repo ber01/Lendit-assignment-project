@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Service
 public class ProductService {
@@ -23,4 +25,7 @@ public class ProductService {
         return productRepository.findAll(pageable);
     }
 
+    public Product oneProductLookup(Long productId) {
+        return productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException(productId + "에 해당하는 상품 없음"));
+    }
 }

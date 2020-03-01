@@ -23,7 +23,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .headers().frameOptions().disable().and()
                 .authorizeRequests()
-                .mvcMatchers(HttpMethod.GET, "/", "/api/products").permitAll()
+                .mvcMatchers(HttpMethod.GET, "/", "/api/products/*").permitAll()
                 .antMatchers("/h2-console/**").permitAll()
                 .anyRequest()
                 .authenticated();

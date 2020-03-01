@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.Random;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -79,6 +81,41 @@ public class ProductControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("page").exists())
+        ;
+    }
+
+    @Test
+    @Description("상품을 조회할 때 ADMIN인 경우 상품을 등록하는 링크가 존재하는 테스트")
+    public void Product_조회_ADMIN() throws Exception {
+        this.mockMvc.perform(get("/api/products")
+                    .header(HttpHeaders.AUTHORIZATION, getAuthTokenWithAdmin()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.links[4].rel").value("register-product"))
+        ;
+    }
+
+    @Test
+    @Description("하나의 상품을 조회하면 해당 상품의 정보와 전체 조회 링크가 존재하는 테스트")
+    public void Product_하나_조회() throws Exception {
+        long productId = new Random().nextInt(30) + 1;
+        this.mockMvc.perform(get("/api/products/" + productId))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.links[1].rel").value("lookup-product"))
+        ;
+    }
+
+    @Test
+    @Description("상품을 등록한 사람이 하나의 상품을 조회하면 업데이트 링크가 존재하는 테스트")
+    public void Product_하나_조회_ADMIN() throws Exception {
+        long productId = new Random().nextInt(30) + 1;
+        this.mockMvc.perform(get("/api/products/" + productId)
+                    .header(HttpHeaders.AUTHORIZATION, getAuthTokenWithAdmin()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.links[1].rel").value("lookup-product"))
+                .andExpect(jsonPath("$.links[2].rel").value("update-product"))
         ;
     }
 
