@@ -1,7 +1,9 @@
 package me.kyunghwan.lendit.products;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import me.kyunghwan.lendit.accounts.Account;
+import me.kyunghwan.lendit.accounts.AccountSerializer;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -28,6 +30,7 @@ public class Product {
     private LocalDateTime createdAt;
 
     @ManyToOne
+    @JsonSerialize(using = AccountSerializer.class)
     private Account account;
 
     @Builder

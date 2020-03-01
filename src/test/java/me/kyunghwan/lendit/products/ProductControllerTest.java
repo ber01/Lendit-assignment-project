@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -55,6 +56,29 @@ public class ProductControllerTest extends BaseControllerTest {
                     .content(objectMapper.writeValueAsString(productDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
+        ;
+    }
+
+    @Test
+    @Description("상품 전체를 조회하는 테스트")
+    public void Product_조회() throws Exception {
+        this.mockMvc.perform(get("/api/products"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("page").exists())
+        ;
+    }
+
+    @Test
+    @Description("상품을 5개씩 조회하는 테스트")
+    public void Product_조회_5개() throws Exception {
+        this.mockMvc.perform(get("/api/products")
+                    .param("page", "2")
+                    .param("size", "5")
+                    .param("sort", "id,ASC"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("page").exists())
         ;
     }
 
