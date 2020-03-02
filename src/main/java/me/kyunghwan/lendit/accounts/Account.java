@@ -1,8 +1,11 @@
 package me.kyunghwan.lendit.accounts;
 
 import lombok.*;
+import me.kyunghwan.lendit.orders.Order;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter @Setter
 @NoArgsConstructor
@@ -26,13 +29,13 @@ public class Account {
     @Column
     private Long deposit;
 
-    /*
-    @OneToMany
-    private List<Product> cartsList;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "account")
+    private List<Order> ordersList = new ArrayList<>();
 
-    @OneToMany
-    private List<Product> ordersList;
-    */
+    public void addOrder(Order order) {
+        order.setAccount(this);
+        this.getOrdersList().add(order);
+    }
 
     @Builder
     public Account(String email, String password, AccountRole role, Long deposit) {
