@@ -10,16 +10,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
 
     @PostMapping
-    public ResponseEntity addOrder(@RequestBody OrderRequestDto requestDto,
+    public ResponseEntity addOrder(@RequestBody List<OrderRequestDto> dtoList,
                                    @AuthenticationPrincipal AccountAdapter accountAdapter) {
-        String str = requestDto.getName() + " " + requestDto.getQuantity();
-        System.out.println(str);
+        for (OrderRequestDto dto : dtoList) {
+            System.out.println(dto.getName() + " " + dto.getQuantity());
+        }
         Account account = accountAdapter.getAccount();
         return null;
     }
